@@ -1,0 +1,23 @@
+# More information about creating and updating this file can be found here:
+# -- https://docs.gitlab.com/ee/ci/yaml/
+before_script:
+  - export IMAGE_TAG=$CI_COMMIT_REF_SLUG.$CI_COMMIT_SHA
+  - export IMAGE=quay.io/valassis/ci-runner-keyring:$IMAGE_TAG
+
+stages:
+  - build:docker
+
+build:docker:test:
+  stage: build:docker
+  image: docker:latest
+  when: manual
+  services:
+    - docker:dind
+  tags:
+    - k8s   # PROD
+  script:
+    # This is required for docker-in-docker on kubernetes.
+    - export DOCKER_HOST=tcp://localhost:2375
+    - docker login -u "valassis+gitlab" -p "$QUAY_TOKEN" quay.io
+    - docker build -t $IMAGE .
+    - docker push $IMAGE
