@@ -2,7 +2,7 @@
 # -- https://docs.gitlab.com/ee/ci/yaml/
 before_script:
   - export IMAGE_TAG=$CI_COMMIT_REF_SLUG.$CI_COMMIT_SHA
-  - export IMAGE=quay.io/valassis/ci-runner-keyring:$IMAGE_TAG
+  - export IMAGE=quay.io/valassis/ci-runner-vcx:$IMAGE_TAG
 
 stages:
   - build:docker
