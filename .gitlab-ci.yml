@@ -2,12 +2,28 @@
 # -- https://docs.gitlab.com/ee/ci/yaml/
 before_script:
   - export IMAGE_TAG=$CI_COMMIT_REF_SLUG.$CI_COMMIT_SHA
-  - export IMAGE=quay.io/valassis/ci-runner-vcx:$IMAGE_TAG
+  - export IMAGE_NAME=quay.io/valassis/ci-runner-vcx
+  - export IMAGE=$IMAGE_NAME:$IMAGE_TAG
 
 stages:
   - build:docker
+  - push:docker
 
-build:docker:test:
+build:docker:
+  stage: build:docker
+  image: docker:latest
+  services:
+    - docker:dind
+  tags:
+    - k8s   # PROD
+  script:
+    # This is required for docker-in-docker on kubernetes.
+    - export DOCKER_HOST=tcp://localhost:2375
+    - docker login -u "valassis+gitlab" -p "$QUAY_TOKEN" quay.io
+    - docker build -t $IMAGE .
+    - docker push $IMAGE
+
+push:docker:
   stage: build:docker
   image: docker:latest
   when: manual
@@ -19,5 +35,5 @@ build:docker:test:
     # This is required for docker-in-docker on kubernetes.
     - export DOCKER_HOST=tcp://localhost:2375
     - docker login -u "valassis+gitlab" -p "$QUAY_TOKEN" quay.io
-    - docker build -t $IMAGE .
-    - docker push $IMAGE
+    - docker tag IMAGE $IMAGE_NAME:latest
+    - docker push $IMAGE_NAME:latest
