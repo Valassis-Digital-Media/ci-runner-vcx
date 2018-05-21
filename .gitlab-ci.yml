@@ -24,7 +24,7 @@ build:docker:
     - docker push $IMAGE
 
 push:docker:
-  stage: build:docker
+  stage: push:docker
   image: docker:latest
   when: manual
   services:
