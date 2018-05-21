@@ -35,5 +35,6 @@ push:docker:
     # This is required for docker-in-docker on kubernetes.
     - export DOCKER_HOST=tcp://localhost:2375
     - docker login -u "valassis+gitlab" -p "$QUAY_TOKEN" quay.io
+    - docker pull $IMAGE
     - docker tag $IMAGE $IMAGE_NAME:latest
     - docker push $IMAGE_NAME:latest
